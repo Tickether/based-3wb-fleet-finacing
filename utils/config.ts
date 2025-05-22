@@ -1,12 +1,11 @@
-import { injected } from "wagmi/connectors";
-import { createConfig, http } from "wagmi";
+
+import { getDefaultConfig } from "@rainbow-me/rainbowkit";
 import { base } from "wagmi/chains";
 
-export const config = createConfig({
-    connectors: [injected()],
+export const config = getDefaultConfig({
+    appName: "3WB P2P Fleet Finance",
+    projectId: process.env.NEXT_PUBLIC_WC_PROJECT_ID,
     chains: [base],
     ssr: true,
-    transports: {
-      [base.id]: http()
-    },
+    
 });
