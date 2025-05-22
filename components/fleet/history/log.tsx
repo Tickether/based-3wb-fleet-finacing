@@ -29,7 +29,7 @@ export function Log({ log }: LogProps) {
                 </TableCell>
                 <TableCell className="w-1/4">
                     <a 
-                        href={`https://celoscan.io/tx/${log.transactionHash}`}
+                        href={`https://basescan.io/tx/${log.transactionHash}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="hover:text-yellow-600 cursor-pointer underline decoration-yellow-600"

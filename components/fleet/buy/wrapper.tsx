@@ -20,7 +20,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { fleetOrderBook } from "@/utils/constants/addresses";
 import { fleetOrderBookAbi } from "@/utils/abis/fleetOrderBook";
-import { erc20Abi } from "viem";
+import { erc20Abi, maxUint256 } from "viem";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -41,7 +41,7 @@ export function Wrapper() {
     const { writeContractAsync } = useWriteContract()
 
     const fleetFractionPriceQueryClient = useQueryClient()
-    const allowanceCeloDollarQueryClient = useQueryClient()
+    const allowanceDollarQueryClient = useQueryClient()
     const { data: blockNumber } = useBlockNumber({ watch: true }) 
 
 
@@ -77,28 +77,58 @@ export function Wrapper() {
 
 
 
-    const { data: allowanceCeloUSD, isLoading: allowanceCeloDollarLoading, queryKey: allowanceCeloDollarQueryKey } = useReadContract({
+    const { data: allowanceUSD, isLoading: allowanceDollarLoading, queryKey: allowanceDollarQueryKey } = useReadContract({
         abi: erc20Abi,
-        address: "0x74869c892C9f64AC650e3eC13F6d07C0f21007a6"/*cUSD*/,
+        address: "0x7CF30c678D4BF10f901934E7bd604967dDAEF5C4"/*cUSD*/,
         functionName: "allowance",
         args: [address!, fleetOrderBook],
     })
     useEffect(() => { 
-        allowanceCeloDollarQueryClient.invalidateQueries({ queryKey: allowanceCeloDollarQueryKey }) 
-    }, [blockNumber, allowanceCeloDollarQueryClient, allowanceCeloDollarQueryKey])
-    console.log(allowanceCeloUSD)
+        allowanceDollarQueryClient.invalidateQueries({ queryKey: allowanceDollarQueryKey }) 
+    }, [blockNumber, allowanceDollarQueryClient, allowanceDollarQueryKey])
+    console.log(allowanceUSD)
+
+    // approve USD (unlimited)
+    async function approveUSD() {
+        try {
+            setLoadingUSD(true)
+            await writeContractAsync({
+                abi: erc20Abi,
+                address: "0x7CF30c678D4BF10f901934E7bd604967dDAEF5C4"/*USDT*/,
+                functionName: "approve",
+                args: [fleetOrderBook, (maxUint256) ],
+            },{
+                onSuccess() {
+                    //approval toast
+                    toast.info("Approval successful", {
+                        description: `You can now purchase the ${amount > 1 ? "3-Wheelers" : " 3-Wheeler"}`,
+                    })
+                    setLoadingUSD(false)
+                },
+                onError(error) {
+                    console.log(error)
+                    toast.error("Approval failed", {
+                        description: `Something went wrong, please try again`,
+                    })
+                    setLoadingUSD(false)
+                }
+            });
+        } catch (error) {
+            console.log(error)
+            setLoadingUSD(false)
+        }
+    }
 
 
-
-    // order multiple fleet with celoUSD
-    async function orderFleetWithCeloUSD() { 
+    // order multiple fleet with USD
+    async function orderFleetWithUSD() { 
         try {
             setLoadingUSD(true)
             writeContractAsync({
                 abi: fleetOrderBookAbi,
                 address: fleetOrderBook,
                 functionName: "orderFleet",
-                args: [BigInt(amount), "0x74869c892C9f64AC650e3eC13F6d07C0f21007a6"/*cUSD*/],
+                args: [BigInt(amount), "0x7CF30c678D4BF10f901934E7bd604967dDAEF5C4"/*cUSD*/],
             },{
                 onSuccess() {
                     //success toast
@@ -123,15 +153,15 @@ export function Wrapper() {
     }
 
 
-    // order fleet fractions & single 3-Wheeler with celoUSD
-    async function orderFleetFractionsWithCeloUSD( shares: number ) {    
+    // order fleet fractions & single 3-Wheeler with USD
+    async function orderFleetFractionsWithUSD( shares: number ) {    
         try {
             setLoadingUSD(true)
             writeContractAsync({
                 abi: fleetOrderBookAbi,
                 address: fleetOrderBook,
                 functionName: "orderFleetFraction",
-                args: [BigInt(shares), "0x74869c892C9f64AC650e3eC13F6d07C0f21007a6"/*cUSD*/],
+                args: [BigInt(shares), "0x7CF30c678D4BF10f901934E7bd604967dDAEF5C4"/*cUSD*/],
             },{
                 onSuccess() {
                     //success toast
@@ -228,17 +258,18 @@ export function Wrapper() {
                                 
                                 {/**pay with USD */}
                                 <Button 
-                                    className={` ${allowanceCeloUSD && allowanceCeloUSD > 0 ? "w-full hover:bg-yellow-600" : "w-full bg-yellow-300 hover:bg-yellow-400"}` }
+                                    className={` ${allowanceUSD && allowanceUSD > 0 ? "w-full hover:bg-yellow-600" : "w-full bg-yellow-300 hover:bg-yellow-400"}` }
                                     disabled={loadingUSD} 
                                     onClick={() => {
-                                        if (allowanceCeloUSD && allowanceCeloUSD > 0) {
+                                        if (allowanceUSD && allowanceUSD > 0) {
                                             if (isFractionsMode) {
-                                                orderFleetFractionsWithCeloUSD(fractions)
+                                                orderFleetFractionsWithUSD(fractions)
                                             } else {
-                                                orderFleetWithCeloUSD()
+                                                orderFleetWithUSD()
                                             }
                                         } else {
                                             //approve USD
+                                            approveUSD()
                                         }
                                     }}
                                 >
@@ -263,13 +294,13 @@ export function Wrapper() {
                                             <>
                                             <>
                                                 {
-                                                    allowanceCeloDollarLoading ? (
+                                                    allowanceDollarLoading ? (
                                                        <></>
                                                     )  
                                                     : (
                                                         <>
                                                             {
-                                                                allowanceCeloUSD && allowanceCeloUSD > 0 ? "Pay with cUSD" : "Approve cUSD"
+                                                                allowanceUSD && allowanceUSD > 0 ? "Pay with cUSD" : "Approve cUSD"
                                                             }
                                                         </>
                                                     )
