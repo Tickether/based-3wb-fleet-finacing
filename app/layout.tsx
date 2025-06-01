@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist_Mono } from "next/font/google";
-import "./globals.css";
-import '@rainbow-me/rainbowkit/styles.css';
-import Providers from "./providers";
+import "./globals.css"
+import { Toaster } from "sonner";
+import { WagmiContext } from "@/context/wagmiContext";
 
 
 const geistMono = Geist_Mono({
@@ -25,9 +25,10 @@ export default function RootLayout({
       <body
         className={`${geistMono.className}`}
       >
-        <Providers>
+        <WagmiContext>
           {children}
-        </Providers>
+          <Toaster expand={true} richColors />
+        </WagmiContext>
       </body>
     </html>
   );
