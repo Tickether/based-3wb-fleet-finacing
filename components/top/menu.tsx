@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { Logout } from "./logout";
 
 export function Menu() {
 
@@ -24,7 +24,7 @@ export function Menu() {
                             <Image src="/icons/telegram.svg" alt="telegram" width={30} height={30} />
                         </a>
                     </div>
-                    <ConnectButton />
+                    <Logout/>
                 </div>
             </div>
         </div>
