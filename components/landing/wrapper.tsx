@@ -5,15 +5,28 @@ import { useRouter } from "next/navigation";
 import { Button } from "../ui/button";
 import { Wallet, TrendingUp, ShieldCheck } from "lucide-react";
 import Image from "next/image";
+import { useConnect, useAccount } from "wagmi";
+import { injected } from "wagmi/connectors";
 
 export function Wrapper() {
     const router = useRouter()
     console.log(router)
 
+    const { connectAsync } = useConnect()
+    const { isConnected } = useAccount()
+
     
 
     async function Login() {
-        router.push("/fleet")
+        if (!isConnected) {
+            await connectAsync({ connector: injected() })
+            
+            router.push("/fleet")
+            
+        }
+        if (isConnected) {
+            router.push("/fleet")
+        }
     }
 
    
