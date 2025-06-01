@@ -300,7 +300,7 @@ export function Wrapper() {
                                                     : (
                                                         <>
                                                             {
-                                                                allowanceUSD && allowanceUSD > 0 ? "Pay with cUSD" : "Approve cUSD"
+                                                                allowanceUSD && allowanceUSD > 0 ? "Pay with USD" : "Approve USD"
                                                             }
                                                         </>
                                                     )
