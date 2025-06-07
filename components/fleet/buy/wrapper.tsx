@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation";
-import { useAccount, useBlockNumber, useReadContract, useWriteContract } from "wagmi";
+import { useAccount, useBlockNumber, useReadContract, useSendTransaction, useWriteContract } from "wagmi";
 import { Button } from "@/components/ui/button"
 import {
   Drawer,
@@ -18,11 +18,16 @@ import { motion } from "framer-motion"
 import { ChartPie, Ellipsis, Minus, Plus, RefreshCw } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { fleetOrderBook } from "@/utils/constants/addresses";
+import { divvi, fleetOrderBook, fleetOrderToken } from "@/utils/constants/addresses";
 import { fleetOrderBookAbi } from "@/utils/abis/fleetOrderBook";
-import { erc20Abi, maxUint256 } from "viem";
+import { erc20Abi, encodeFunctionData, maxUint256, parseUnits, formatUnits } from "viem";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { publicClient } from "@/utils/client";
+import { fleetOrderTokenAbi } from "@/utils/abis/fleetOrderToken";
+import { useDivvi } from "@/hooks/useDivvi";
+import { base, optimism } from "viem/chains";
+import { divviAbi } from "@/utils/abis/divvi";
 
 
 
@@ -42,8 +47,12 @@ export function Wrapper() {
 
     const fleetFractionPriceQueryClient = useQueryClient()
     const allowanceDollarQueryClient = useQueryClient()
+    const isUserReferredToProviderQueryClient = useQueryClient()
+    const testTokenBalanceQueryClient = useQueryClient()
     const { data: blockNumber } = useBlockNumber({ watch: true }) 
 
+    const { sendTransactionAsync } = useSendTransaction();
+    const { registerUser, loading } = useDivvi()
 
 
 
@@ -79,7 +88,7 @@ export function Wrapper() {
 
     const { data: allowanceUSD, isLoading: allowanceDollarLoading, queryKey: allowanceDollarQueryKey } = useReadContract({
         abi: erc20Abi,
-        address: "0x7CF30c678D4BF10f901934E7bd604967dDAEF5C4"/*cUSD*/,
+        address: fleetOrderToken/*cUSD*/,
         functionName: "allowance",
         args: [address!, fleetOrderBook],
     })
@@ -88,33 +97,61 @@ export function Wrapper() {
     }, [blockNumber, allowanceDollarQueryClient, allowanceDollarQueryKey])
     console.log(allowanceUSD)
 
-    // approve USD (unlimited)
-    async function approveUSD() {
+    const { data: isUserReferredToProvider, queryKey: isUserReferredToProviderQueryKey } = useReadContract({
+        abi: divviAbi,
+        address: divvi,
+        functionName: "isUserReferredToProvider",
+        chainId: optimism.id,
+        args: [address!, "0xc95876688026be9d6fa7a7c33328bd013effa2bb"],
+
+    })
+    useEffect(() => { 
+        isUserReferredToProviderQueryClient.invalidateQueries({ queryKey: isUserReferredToProviderQueryKey }) 
+    }, [blockNumber, isUserReferredToProviderQueryClient, isUserReferredToProviderQueryKey]) 
+    console.log(isUserReferredToProvider!)
+
+    const { data: testTokenBalance, queryKey: testTokenBalanceQueryKey } = useReadContract({
+        abi: erc20Abi,
+        address: fleetOrderToken,
+        functionName: "balanceOf",
+        chainId: base.id,
+        args: [address!],
+
+    })
+    useEffect(() => { 
+        testTokenBalanceQueryClient.invalidateQueries({ queryKey: testTokenBalanceQueryKey }) 
+    }, [blockNumber, testTokenBalanceQueryClient, testTokenBalanceQueryKey]) 
+    console.log(testTokenBalance!)
+
+    async function getTestTokens() {
         try {
             setLoadingUSD(true)
-            await writeContractAsync({
-                abi: erc20Abi,
-                address: "0x7CF30c678D4BF10f901934E7bd604967dDAEF5C4"/*USDT*/,
-                functionName: "approve",
-                args: [fleetOrderBook, (maxUint256) ],
-            },{
-                onSuccess() {
-                    //approval toast
-                    toast.info("Approval successful", {
-                        description: `You can now purchase the ${amount > 1 ? "3-Wheelers" : " 3-Wheeler"}`,
-                    })
-                    setLoadingUSD(false)
-                },
-                onError(error) {
-                    console.log(error)
-                    toast.error("Approval failed", {
-                        description: `Something went wrong, please try again`,
-                    })
-                    setLoadingUSD(false)
-                }
-            });
+            const hash = await sendTransactionAsync({
+                to: fleetOrderToken,
+                data: encodeFunctionData({
+                    abi: fleetOrderTokenAbi,
+                    functionName: "dripPayeeFromPSP",
+                    args: [address!, parseUnits("1500000", 18)],
+                }),
+                chainId: base.id,
+            })
+            const transaction = await publicClient.waitForTransactionReceipt({
+                confirmations: 1,
+                hash: hash
+            })
+
+            if (transaction) {
+                toast.success("Test Tokens Received", {
+                    description: `You can now make orders to your fleet with test tokens`,
+                })
+                setLoadingUSD(false)
+            }
+            
         } catch (error) {
             console.log(error)
+            toast.error("Transaction failed", {
+                description: `Something went wrong, please try again`,
+            })
             setLoadingUSD(false)
         }
     }
@@ -128,7 +165,8 @@ export function Wrapper() {
                 abi: fleetOrderBookAbi,
                 address: fleetOrderBook,
                 functionName: "orderFleet",
-                args: [BigInt(amount), "0x7CF30c678D4BF10f901934E7bd604967dDAEF5C4"/*cUSD*/],
+                args: [BigInt(amount), fleetOrderToken/*cUSD*/],
+                chainId: base.id,
             },{
                 onSuccess() {
                     //success toast
@@ -161,7 +199,8 @@ export function Wrapper() {
                 abi: fleetOrderBookAbi,
                 address: fleetOrderBook,
                 functionName: "orderFleetFraction",
-                args: [BigInt(shares), "0x7CF30c678D4BF10f901934E7bd604967dDAEF5C4"/*cUSD*/],
+                args: [BigInt(shares), fleetOrderToken/*cUSD*/],
+                chainId: base.id,
             },{
                 onSuccess() {
                     //success toast
@@ -268,8 +307,18 @@ export function Wrapper() {
                                                 orderFleetWithUSD()
                                             }
                                         } else {
-                                            //approve USD
-                                            approveUSD()
+                                            
+                                            if ( (Number(formatUnits(testTokenBalance!, 18))) <= 2000 ) {
+                                                getTestTokens()
+                                            } else {
+                                                if (!isUserReferredToProvider  || (Number(formatUnits(allowanceUSD!, 18))) === 0) {
+                                                    registerUser(address!)
+                                                } else {
+                                                    toast.error("Already approved!", {
+                                                        description: "You are have already approved & registered to a provider",
+                                                    })
+                                                }
+                                            }
                                         }
                                     }}
                                 >
@@ -300,7 +349,7 @@ export function Wrapper() {
                                                     : (
                                                         <>
                                                             {
-                                                                allowanceUSD && allowanceUSD > 0 ? "Pay with USD" : "Approve USD"
+                                                                allowanceUSD && allowanceUSD > 0 ? "Pay with cUSD" : `${( (Number(formatUnits(testTokenBalance!, 18))) <= 2000 ) ? "Get Test cUSD" : "Approve cUSD"}`
                                                             }
                                                         </>
                                                     )
