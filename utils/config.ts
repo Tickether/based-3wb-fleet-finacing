@@ -7,7 +7,7 @@ export const config = createConfig({
     chains: [base, optimism],
     ssr: true,
     transports: {
-      [base.id]: http(),
+      [base.id]: http("https://rpc.ankr.com/base/ee0a8164bea2f800a788de2550a2171e4f908f2e911ed21499ec792d110aa631"),
       [optimism.id]: http(),
     },
 });
