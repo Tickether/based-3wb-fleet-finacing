@@ -308,7 +308,7 @@ export function Wrapper() {
                                 {/**pay with USD */}
                                 <Button 
                                     className={` ${allowanceUSD && allowanceUSD > 0 ? "w-full hover:bg-yellow-600" : "w-full bg-yellow-300 hover:bg-yellow-400"}` }
-                                    disabled={loadingUSD} 
+                                    //disabled={loadingUSD} 
                                     onClick={() => {
                                         if (allowanceUSD && allowanceUSD > 0) {
                                             if (isFractionsMode) {
