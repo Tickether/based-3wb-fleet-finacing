@@ -219,7 +219,7 @@ export function Wrapper() {
                     })
 
                     setLoadingUSD(false)
-                    router.push("/fleet")
+                    //router.push("/fleet")
                 },
                 onError(error) {
                     console.log(error)
