@@ -1,13 +1,25 @@
-import { injected } from "wagmi/connectors";
-import { cookieStorage, createConfig, createStorage, http } from "wagmi";
-import { base, optimism } from "wagmi/chains";
+import { cookieStorage, createStorage, http } from '@wagmi/core'
+import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
+import { base, optimism } from '@reown/appkit/networks'
 
-export const config = createConfig({
-    connectors: [injected()],
-    chains: [base, optimism],
-    ssr: true,
-    transports: {
-      [base.id]: http("https://rpc.ankr.com/base/ee0a8164bea2f800a788de2550a2171e4f908f2e911ed21499ec792d110aa631"),
-      [optimism.id]: http(),
-    },
-});
+// Get projectId from https://dashboard.reown.com
+export const projectId = process.env.NEXT_PUBLIC_WC_PROJECT_ID
+
+
+if (!projectId) {
+  throw new Error('Project ID is not defined')
+}
+
+export const networks = [base, optimism]
+
+//Set up the Wagmi Adapter (Config)
+export const wagmiAdapter = new WagmiAdapter({
+  storage: createStorage({
+    storage: cookieStorage
+  }),
+  ssr: true,
+  projectId,
+  networks
+})
+
+export const config = wagmiAdapter.wagmiConfig

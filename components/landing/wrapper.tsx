@@ -7,19 +7,20 @@ import { Wallet, TrendingUp, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import { useConnect, useAccount } from "wagmi";
 import { injected } from "wagmi/connectors";
+import { useAppKit } from "@reown/appkit/react";
 
 export function Wrapper() {
     const router = useRouter()
     console.log(router)
 
-    const { connectAsync } = useConnect()
+    const { open, close } = useAppKit();
     const { isConnected } = useAccount()
 
     
 
     async function Login() {
         if (!isConnected) {
-            await connectAsync({ connector: injected() })
+            await open()
             
             router.push("/fleet")
             
@@ -29,7 +30,6 @@ export function Wrapper() {
         }
     }
 
-   
     
 
     return (

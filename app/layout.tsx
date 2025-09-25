@@ -3,6 +3,7 @@ import { Geist_Mono } from "next/font/google";
 import "./globals.css"
 import { Toaster } from "sonner";
 import { WagmiContext } from "@/context/wagmiContext";
+import { headers } from "next/headers";
 
 
 const geistMono = Geist_Mono({
@@ -15,17 +16,20 @@ export const metadata: Metadata = {
   description: "P2P Financing Platform for the 3 Wheeler Bike Club",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headersObj = await headers();
+  const cookies = headersObj.get('cookie')
+  
   return (
     <html lang="en">
       <body
         className={`${geistMono.className}`}
       >
-        <WagmiContext>
+        <WagmiContext cookies={cookies}>
           {children}
           <Toaster expand={true} richColors />
         </WagmiContext>
