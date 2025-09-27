@@ -1,13 +1,13 @@
-import { cookieStorage, createStorage, http } from '@wagmi/core'
-import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
-import { base, optimism } from '@reown/appkit/networks'
+import { cookieStorage, createStorage, http } from "@wagmi/core"
+import { WagmiAdapter } from "@reown/appkit-adapter-wagmi"
+import { base, optimism } from "@reown/appkit/networks"
 
 // Get projectId from https://dashboard.reown.com
 export const projectId = process.env.NEXT_PUBLIC_WC_PROJECT_ID
 
 
 if (!projectId) {
-  throw new Error('Project ID is not defined')
+  throw new Error("Project ID is not defined")
 }
 
 export const networks = [base, optimism]
