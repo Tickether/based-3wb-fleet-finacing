@@ -4,6 +4,7 @@ import "./globals.css"
 import { Toaster } from "sonner";
 import { WagmiContext } from "@/context/wagmiContext";
 import { headers } from "next/headers";
+import { Footer } from "@/components/bottom/footer";
 
 
 const geistMono = Geist_Mono({
@@ -31,6 +32,7 @@ export default async function RootLayout({
       >
         <WagmiContext cookies={cookies}>
           {children}
+          <Footer />
           <Toaster expand={true} richColors />
         </WagmiContext>
       </body>
