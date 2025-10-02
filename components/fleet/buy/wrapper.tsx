@@ -172,7 +172,7 @@ export function Wrapper() {
                 abi: fleetOrderBookAbi,
                 address: fleetOrderBook,
                 functionName: "orderFleet",
-                args: [BigInt(amount), fleetOrderToken/*cUSD*/],
+                args: [BigInt(amount), fleetOrderToken/*cUSD*/, address!],
                 chainId: base.id,
             },{
                 onSuccess() {
@@ -209,7 +209,7 @@ export function Wrapper() {
                 abi: fleetOrderBookAbi,
                 address: fleetOrderBook,
                 functionName: "orderFleetFraction",
-                args: [BigInt(shares), fleetOrderToken/*cUSD*/],
+                args: [BigInt(shares), fleetOrderToken/*cUSD*/, address!],
                 chainId: base.id,
             },{
                 onSuccess() {

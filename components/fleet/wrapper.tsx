@@ -65,7 +65,7 @@ export function Wrapper() {
     const { data: maxFleetOrder, queryKey: maxFleetOrderQueryKey } = useReadContract({
         address: fleetOrderBook,
         abi: fleetOrderBookAbi,
-        functionName: "maxFleetOrder",
+        functionName: "maxFleetOrderPerContainer",
     });
     useEffect(() => { 
         maxFleetOrderQueryClient.invalidateQueries({ queryKey: maxFleetOrderQueryKey }) 
@@ -76,7 +76,7 @@ export function Wrapper() {
     const { data: totalFleet, queryKey: totalFleetQueryKey } = useReadContract({
         address: fleetOrderBook,
         abi: fleetOrderBookAbi,
-        functionName: "totalFleet",
+        functionName: "totalFleetOrderPerContainer",
     });
     useEffect(() => { 
         totalFleetQueryClient.invalidateQueries({ queryKey: totalFleetQueryKey }) 
@@ -96,7 +96,7 @@ export function Wrapper() {
     const { data: totalFractions, queryKey: totalFractionsQueryKey } = useReadContract({
         address: fleetOrderBook,
         abi: fleetOrderBookAbi,
-        functionName: "totalFractions",
+        functionName: "totalSupply",
         args: [lastFleetFractionID!]
     });
     useEffect(() => { 
