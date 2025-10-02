@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 import { encodeFunctionData } from "viem"
-import { celo } from "viem/chains"
+import { base } from "viem/chains"
 import { useAccount, useSendTransaction, useSwitchChain } from "wagmi";
 
 
@@ -38,8 +38,8 @@ export const useOrderFleetFraction = () => {
           consumer: "0x99342D3CE2d10C34b7d20D960EA75bd742aec468",
         })
 
-        if (chainId !== celo.id) {
-          await switchChainAsync({ chainId: celo.id })
+        if (chainId !== base.id) {
+          await switchChainAsync({ chainId: base.id })
         }
         
         //Send the transaction your dapp was already going to perform (e.g. swap, transfer, contract interaction), but add the referral tag to the `data` field to enable attribution tracking.
@@ -47,7 +47,7 @@ export const useOrderFleetFraction = () => {
           to: fleetOrderBook,
           data: data + referralTag as `0x${string}`,
           value: BigInt(0),
-          chainId: celo.id
+          chainId: base.id
         })
         
         const transaction = await publicClient.waitForTransactionReceipt({
@@ -59,7 +59,7 @@ export const useOrderFleetFraction = () => {
         if (transaction) {
           await submitReferral({
             txHash: hash,
-            chainId: celo.id
+            chainId: base.id
           })
         }
         setLoadingOrderFleetFraction(false) 

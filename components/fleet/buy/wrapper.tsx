@@ -26,6 +26,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { publicClient } from "@/utils/client";
 import { fleetOrderTokenAbi } from "@/utils/abis/fleetOrderToken";
 import { useApprove } from "@/hooks/useApprove";
+import { useOrderFleet } from "@/hooks/useOrderFleet";
+import { useOrderFleetFraction } from "@/hooks/useOrderFleetFraction";
 import { base, optimism } from "viem/chains";
 import { divviAbi } from "@/utils/abis/divvi";
 
@@ -44,7 +46,6 @@ export function Wrapper() {
 
     const router = useRouter()
     
-    const { writeContractAsync } = useWriteContract()
 
     const fleetFractionPriceQueryClient = useQueryClient()
     const allowanceDollarQueryClient = useQueryClient()
@@ -54,6 +55,8 @@ export function Wrapper() {
 
     const { sendTransactionAsync } = useSendTransaction();
     const { approve, loadingApproval } = useApprove()
+    const { orderFleet, loadingOrderFleet } = useOrderFleet()
+    const { orderFleetFraction, loadingOrderFleetFraction } = useOrderFleetFraction()
 
 
 
@@ -160,7 +163,7 @@ export function Wrapper() {
         }
     }
 
-
+/*
     // order multiple fleet with USD
     async function orderFleetWithUSD() { 
         try {
@@ -172,7 +175,7 @@ export function Wrapper() {
                 abi: fleetOrderBookAbi,
                 address: fleetOrderBook,
                 functionName: "orderFleet",
-                args: [BigInt(amount), fleetOrderToken/*cUSD*/, address!],
+                args: [BigInt(amount), fleetOrderToken, address!],
                 chainId: base.id,
             },{
                 onSuccess() {
@@ -196,8 +199,9 @@ export function Wrapper() {
             setLoadingUSD(false)
         }
     }
+*/
 
-
+/*
     // order fleet fractions & single 3-Wheeler with USD
     async function orderFleetFractionsWithUSD( shares: number ) {    
         try {
@@ -209,7 +213,7 @@ export function Wrapper() {
                 abi: fleetOrderBookAbi,
                 address: fleetOrderBook,
                 functionName: "orderFleetFraction",
-                args: [BigInt(shares), fleetOrderToken/*cUSD*/, address!],
+                args: [BigInt(shares), fleetOrderToken, address!],
                 chainId: base.id,
             },{
                 onSuccess() {
@@ -234,6 +238,7 @@ export function Wrapper() {
             setLoadingUSD(false)
         }
     }
+*/
 
     return (
         <div className="flex flex-col w-full h-full items-center gap-8 p-24 max-md:p-6">
@@ -312,9 +317,9 @@ export function Wrapper() {
                                     onClick={() => {
                                         if (allowanceUSD && allowanceUSD > 0) {
                                             if (isFractionsMode) {
-                                                orderFleetFractionsWithUSD(fractions)
+                                                orderFleetFraction(address!, fractions)
                                             } else {
-                                                orderFleetWithUSD()
+                                                orderFleet(address!, amount)
                                             }
                                         } else {
                                             
