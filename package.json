@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@divvi/referral-sdk": "^1.0.0",
+    "@divvi/referral-sdk": "^2.3.0",
     "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-label": "^2.1.7",
