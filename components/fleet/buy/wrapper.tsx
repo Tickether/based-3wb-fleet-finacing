@@ -25,7 +25,7 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { publicClient } from "@/utils/client";
 import { fleetOrderTokenAbi } from "@/utils/abis/fleetOrderToken";
-import { useDivvi } from "@/hooks/useDivvi";
+import { useApprove } from "@/hooks/useApprove";
 import { base, optimism } from "viem/chains";
 import { divviAbi } from "@/utils/abis/divvi";
 
@@ -53,7 +53,7 @@ export function Wrapper() {
     const { data: blockNumber } = useBlockNumber({ watch: true }) 
 
     const { sendTransactionAsync } = useSendTransaction();
-    const { registerUser, loading } = useDivvi()
+    const { approve, loadingApproval } = useApprove()
 
 
 
@@ -322,7 +322,7 @@ export function Wrapper() {
                                                 getTestTokens()
                                             } else {
                                                 if (!isUserReferredToProvider  || (Number(formatUnits(allowanceUSD!, 18))) === 0) {
-                                                    registerUser(address!)
+                                                    approve(address!)
                                                 } else {
                                                     toast.error("Already approved!", {
                                                         description: "You are have already approved & registered to a provider",
