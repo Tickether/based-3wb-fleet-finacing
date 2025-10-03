@@ -137,7 +137,7 @@ export function Wrapper() {
                 to: fleetOrderToken,
                 data: encodeFunctionData({
                     abi: fleetOrderTokenAbi,
-                    functionName: "dripPayeeFromPSP",
+                    functionName: "drip",
                     args: [address!, parseUnits("1500000", 18)],
                 }),
                 chainId: base.id,
