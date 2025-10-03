@@ -20,7 +20,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { divvi, fleetOrderBook, fleetOrderToken } from "@/utils/constants/addresses";
 import { fleetOrderBookAbi } from "@/utils/abis/fleetOrderBook";
-import { erc20Abi, encodeFunctionData, maxUint256, parseUnits, formatUnits } from "viem";
+import { erc20Abi, encodeFunctionData, parseUnits, formatUnits } from "viem";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { publicClient } from "@/utils/client";
@@ -92,7 +92,7 @@ export function Wrapper() {
 
     const { data: allowanceUSD, isLoading: allowanceDollarLoading, queryKey: allowanceDollarQueryKey } = useReadContract({
         abi: erc20Abi,
-        address: fleetOrderToken/*cUSD*/,
+        address: fleetOrderToken,
         functionName: "allowance",
         args: [address!, fleetOrderBook],
     })
@@ -162,83 +162,6 @@ export function Wrapper() {
             setLoadingUSD(false)
         }
     }
-
-/*
-    // order multiple fleet with USD
-    async function orderFleetWithUSD() { 
-        try {
-            setLoadingUSD(true)
-            if (chainId !== base.id) {
-                await switchChainAsync({ chainId: base.id })
-            }
-            writeContractAsync({
-                abi: fleetOrderBookAbi,
-                address: fleetOrderBook,
-                functionName: "orderFleet",
-                args: [BigInt(amount), fleetOrderToken, address!],
-                chainId: base.id,
-            },{
-                onSuccess() {
-                    //success toast
-                    toast.success("Purchase successful", {
-                        description: `You can now view your ${amount > 1 ? "3-Wheelers" : " 3-Wheeler"} in your fleet`,
-                    })
-                    setLoadingUSD(false)
-                    router.push("/fleet")
-                },
-                onError(error) {
-                    console.log(error)
-                    toast.error("Purchase failed", {
-                        description: `Something went wrong, please try again`,
-                    })
-                    setLoadingUSD(false)
-                }
-            });
-        } catch (error) {
-            console.log(error)
-            setLoadingUSD(false)
-        }
-    }
-*/
-
-/*
-    // order fleet fractions & single 3-Wheeler with USD
-    async function orderFleetFractionsWithUSD( shares: number ) {    
-        try {
-            setLoadingUSD(true)
-            if (chainId !== base.id) {
-                await switchChainAsync({ chainId: base.id })
-            }
-            writeContractAsync({
-                abi: fleetOrderBookAbi,
-                address: fleetOrderBook,
-                functionName: "orderFleetFraction",
-                args: [BigInt(shares), fleetOrderToken, address!],
-                chainId: base.id,
-            },{
-                onSuccess() {
-                    //success toast
-                    toast.success("Purchase successful", {
-                        description: `You can now view your 3-Wheeler ${shares == 50 ? "" : `${shares > 1 ? "fractions" : "fraction"}`} in your fleet`,
-                    })
-
-                    setLoadingUSD(false)
-                    //router.push("/fleet")
-                },
-                onError(error) {
-                    console.log(error)
-                    toast.error("Purchase failed", {
-                        description: `Something went wrong, please try again`,
-                    })
-                    setLoadingUSD(false)
-                }
-            });
-        } catch (error) {
-            console.log(error)
-            setLoadingUSD(false)
-        }
-    }
-*/
 
     return (
         <div className="flex flex-col w-full h-full items-center gap-8 p-24 max-md:p-6">
